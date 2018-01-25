@@ -5,7 +5,6 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.util.AttributeSet;
-import android.view.MotionEvent;
 import android.view.View;
 
 /**
@@ -59,40 +58,4 @@ public class WordBoxView extends View {
         canvas.drawLine(width, 0, 0, width, mPaint);
     }
 
-    private int mLastX;
-    private int mLastY;
-
-    @Override
-    public boolean dispatchTouchEvent(MotionEvent event) {
-        int x = (int) event.getX();
-        int y = (int) event.getY();
-        switch (event.getAction()) {
-            case MotionEvent.ACTION_DOWN: {
-                mLastX = x;
-                mLastY = y;
-                break;
-            }
-            case MotionEvent.ACTION_MOVE: {
-                int deltaX = Math.abs(mLastX - x);
-                int deltaY = Math.abs(mLastY - y);
-                if (deltaX > 5 || deltaY > 5) {
-                    return true;
-                }
-                break;
-
-            }
-            case MotionEvent.ACTION_UP: {
-                break;
-            }
-            default: {
-                break;
-            }
-        }
-        return super.dispatchTouchEvent(event);
-    }
-
-    @Override
-    public void onMeasure(int a, int b) {
-        super.onMeasure(a, a);
-    }
 }
