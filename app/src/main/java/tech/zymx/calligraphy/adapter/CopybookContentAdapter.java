@@ -13,6 +13,7 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import tech.zymx.calligraphy.Constant;
 import tech.zymx.calligraphy.activity.CopybookSinglePageActivity;
 import tech.zymx.calligraphy.CalligraphyUtils;
 import tech.zymx.calligraphy.R;
@@ -42,7 +43,7 @@ public class CopybookContentAdapter extends RecyclerView.Adapter<CopybookContent
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(mContext, CopybookSinglePageActivity.class);
-                intent.putExtra("image_name",image_name);
+                intent.putExtra(Constant.IMAGE_NAME_SIGN, image_name);
                 mContext.startActivity(intent);
             }
         });

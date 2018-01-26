@@ -41,17 +41,17 @@ public class WordBoxView extends View {
         int width = getWidth();
         int height = getHeight();
 
+        mPaint.setStyle(Paint.Style.FILL);
+        mPaint.setColor(Color.parseColor("#aaffffff"));
         if (isLocked()) {
-            mPaint.setColor(Color.parseColor("#aaffffff"));
             canvas.drawRect(0, width, width, height, mPaint);
         } else {
-            mPaint.setColor(Color.parseColor("#aaffffff"));
             canvas.drawRect(0, 0, width, width, mPaint);
         }
 
         mPaint.setColor(Color.RED);
-        float[] pts = {0, 0, width, 0, width, width, 0, width, 0, 0};
-        canvas.drawLines(pts, mPaint);
+        mPaint.setStyle(Paint.Style.STROKE);
+        canvas.drawRect(0, 0, width, width, mPaint);
         canvas.drawLine(width / 2, 0, width / 2, width, mPaint);
         canvas.drawLine(0, width / 2, width, width / 2, mPaint);
         canvas.drawLine(0, 0, width, width, mPaint);

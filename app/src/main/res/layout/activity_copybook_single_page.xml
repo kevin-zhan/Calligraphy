@@ -9,12 +9,28 @@
         android:layout_height="match_parent"
         tools:context="tech.zymx.calligraphy.activity.CopybookSinglePageActivity"
         >
-        <ImageView
-            android:id="@+id/content_pic"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:adjustViewBounds="true"
-            />
+            android:orientation="vertical"
+            >
+            <ImageView
+                android:id="@+id/content_pic"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:adjustViewBounds="true"
+                />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="350dp"
+                android:textSize="70sp"
+                android:gravity="center"
+                android:text="@string/the_end"
+                android:textColor="#fff"
+                android:background="@color/black_empty"
+                />
+        </LinearLayout>
+
     </tech.zymx.calligraphy.view.TapStopScrollView>
     <tech.zymx.calligraphy.view.WordBoxView
         android:id="@+id/cover_view"
