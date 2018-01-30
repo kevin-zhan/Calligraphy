@@ -13,5 +13,5 @@ public class Constant {
     public final static String IMAGE_NAME_SIGN = "image_name";
 
     //进入练字状态时间阈值
-    public final static long EFFECTIVE_TIME = 1000*20;
+    public final static long EFFECTIVE_TIME = 1000*15;
 }

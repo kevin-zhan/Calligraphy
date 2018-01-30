@@ -151,6 +151,8 @@ public class CopybookSinglePageActivity extends AppCompatActivity {
             if (curPostion > mPositionList.get(i) - 300 && curPostion < mPositionList.get(i) + 300) {
                 mPositionList.remove(i);
                 mPositionList.add(i, curPostion);
+            } else {
+                mPositionList.add(curPostion);
             }
         }
         Collections.sort(mPositionList);
