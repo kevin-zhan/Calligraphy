@@ -14,4 +14,7 @@ public class Constant {
 
     //进入练字状态时间阈值
     public final static long EFFECTIVE_TIME = 1000*15;
+
+    public final static String[] PREFIXES = {"dbtb_", "jcglq_"};
+    public final static Integer[] IMAGE_NUMBER = {208, 145};
 }
