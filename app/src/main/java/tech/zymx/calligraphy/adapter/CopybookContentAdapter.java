@@ -14,6 +14,7 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import tech.zymx.calligraphy.Constant;
+import tech.zymx.calligraphy.GlideApp;
 import tech.zymx.calligraphy.activity.CopybookSinglePageActivity;
 import tech.zymx.calligraphy.CalligraphyUtils;
 import tech.zymx.calligraphy.R;
@@ -38,7 +39,11 @@ public class CopybookContentAdapter extends RecyclerView.Adapter<CopybookContent
     @Override
     public void onBindViewHolder(InnerViewHolder vh, final int index) {
         final String image_name = mPageNames.get(index);
-        vh.mImageView.setImageResource(CalligraphyUtils.getDrawableID(mContext, image_name));
+        GlideApp.with(mContext)
+                .load(CalligraphyUtils.getDrawableID(mContext,image_name))
+                .placeholder(R.drawable.loading_pic)
+                .into(vh.mImageView);
+//        vh.mImageView.setImageResource(CalligraphyUtils.getDrawableID(mContext, image_name));
         vh.mImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

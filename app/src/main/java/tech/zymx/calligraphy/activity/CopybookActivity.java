@@ -3,23 +3,39 @@ package tech.zymx.calligraphy.activity;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.LinearSmoothScroller;
 import android.support.v7.widget.RecyclerView;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import tech.zymx.calligraphy.CalligraphyUtils;
 import tech.zymx.calligraphy.Constant;
 import tech.zymx.calligraphy.R;
 import tech.zymx.calligraphy.adapter.CopybookContentAdapter;
+import tech.zymx.calligraphy.view.DragSeekView;
 
 public class CopybookActivity extends AppCompatActivity {
 
     @BindView(R.id.main_recycleView)
     RecyclerView mRecyclerView;
+    @BindView(R.id.drag_seek_view)
+    DragSeekView mDragSeekView;
+    @BindView(R.id.preview_holder)
+    RelativeLayout mPreviewHolder;
+    @BindView(R.id.preview_pic)
+    ImageView mPreviewPic;
+    @BindView(R.id.progress_text)
+    TextView mProgressText;
 
-    private final String DBTB_PRIFIX = "dbtb_";
+    private CopybookContentAdapter mAdapter;
+    private int mJumpPosition = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,6 +43,40 @@ public class CopybookActivity extends AppCompatActivity {
         setContentView(R.layout.activity_copybook);
         ButterKnife.bind(this);
         initRecyvleView();
+        mDragSeekView.setOnDragListener(new DragSeekView.OnDragListener() {
+            @Override
+            public void onDragStart() {
+                mPreviewHolder.setVisibility(View.VISIBLE);
+                mJumpPosition = getCurrentPosition() + 2;
+                mPreviewPic.setImageResource(getDrawableAtPosition(mJumpPosition));
+                mProgressText.setText(getResources().getString(R.string.progress_text, mJumpPosition + 1, mRecyclerView.getAdapter().getItemCount()));
+            }
+
+            @Override
+            public void onUpdateDragPercent(float percent) {
+                int targetPosition;
+                int jumpLength = (int) (mRecyclerView.getAdapter().getItemCount() * Math.abs(percent));
+                if (percent > 0) {
+                    targetPosition = getCurrentPosition() - jumpLength > -1 ? getCurrentPosition() - jumpLength : 0;
+                    mPreviewPic.setImageResource(getDrawableAtPosition(targetPosition + 2 < mRecyclerView.getAdapter().getItemCount() ? targetPosition + 2 : targetPosition));
+                } else {
+                    targetPosition = getCurrentPosition() + jumpLength > mRecyclerView.getAdapter().getItemCount() - 1 ? mRecyclerView.getAdapter().getItemCount() - 1 : getCurrentPosition() +
+                            jumpLength;
+                    mPreviewPic.setImageResource(getDrawableAtPosition(targetPosition - 2 < 0 ? 0 : targetPosition - 2));
+                }
+
+                mJumpPosition = targetPosition;
+                mProgressText.setText(getResources().getString(R.string.progress_text, mJumpPosition + 1, mRecyclerView.getAdapter().getItemCount()));
+            }
+
+            @Override
+            public void onDragDone() {
+                mPreviewHolder.setVisibility(View.GONE);
+                if (mJumpPosition != getCurrentPosition()) {
+                    scrollRecycleViewToPosition(mJumpPosition);
+                }
+            }
+        });
     }
 
     private void initRecyvleView() {
@@ -39,10 +89,31 @@ public class CopybookActivity extends AppCompatActivity {
             image_name = prefix + String.valueOf(i + 1);
             pageNames.add(image_name);
         }
-        CopybookContentAdapter adapter = new CopybookContentAdapter(this, pageNames);
-        mRecyclerView.setAdapter(adapter);
+        mAdapter = new CopybookContentAdapter(this, pageNames);
+        mRecyclerView.setAdapter(mAdapter);
 //        RecyclerView.LayoutManager layoutManager = new StaggeredGridLayoutManager(2,StaggeredGridLayoutManager.HORIZONTAL);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, true);
         mRecyclerView.setLayoutManager(layoutManager);
+    }
+
+    private int getDrawableAtPosition(int position) {
+        String imageName = mAdapter.getPageNames().get(position);
+        return CalligraphyUtils.getDrawableID(this, imageName);
+    }
+
+    private int getCurrentPosition() {
+        LinearLayoutManager llm = (LinearLayoutManager) mRecyclerView.getLayoutManager();
+        return llm.findFirstVisibleItemPosition();
+    }
+
+    private void scrollRecycleViewToPosition(int position) {
+        RecyclerView.SmoothScroller smoothScroller = new LinearSmoothScroller(this) {
+            @Override
+            protected int getVerticalSnapPreference() {
+                return LinearSmoothScroller.SNAP_TO_START;
+            }
+        };
+        smoothScroller.setTargetPosition(position);
+        mRecyclerView.getLayoutManager().startSmoothScroll(smoothScroller);
     }
 }
