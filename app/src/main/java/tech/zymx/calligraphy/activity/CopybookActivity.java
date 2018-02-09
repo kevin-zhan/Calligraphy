@@ -1,5 +1,9 @@
 package tech.zymx.calligraphy.activity;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.AnimatorSet;
+import android.animation.ObjectAnimator;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -50,6 +54,7 @@ public class CopybookActivity extends AppCompatActivity {
                 mJumpPosition = getCurrentPosition() + 2;
                 mPreviewPic.setImageResource(getDrawableAtPosition(mJumpPosition));
                 mProgressText.setText(getResources().getString(R.string.progress_text, mJumpPosition + 1, mRecyclerView.getAdapter().getItemCount()));
+                showPreview();
             }
 
             @Override
@@ -71,10 +76,10 @@ public class CopybookActivity extends AppCompatActivity {
 
             @Override
             public void onDragDone() {
-                mPreviewHolder.setVisibility(View.GONE);
                 if (mJumpPosition != getCurrentPosition()) {
                     scrollRecycleViewToPosition(mJumpPosition);
                 }
+                hidePreview();
             }
         });
     }
@@ -114,6 +119,57 @@ public class CopybookActivity extends AppCompatActivity {
             }
         };
         smoothScroller.setTargetPosition(position);
-        mRecyclerView.getLayoutManager().startSmoothScroll(smoothScroller);
+        if (Math.abs(position-getCurrentPosition())>30) {
+            mRecyclerView.scrollToPosition(position);
+        } else {
+            mRecyclerView.getLayoutManager().startSmoothScroll(smoothScroller);
+        }
+    }
+
+    private void showPreview() {
+        ObjectAnimator alphaAnim = ObjectAnimator.ofFloat(mPreviewHolder, "alpha", 0f, 1f);
+        ObjectAnimator scaleXAnim = ObjectAnimator.ofFloat(mPreviewPic, "scaleX", 0, 1);
+        ObjectAnimator scaleYAnim = ObjectAnimator.ofFloat(mPreviewPic, "scaleY", 0, 1);
+        AnimatorSet showAnimSet = new AnimatorSet();
+        showAnimSet.play(alphaAnim)
+                   .with(scaleXAnim)
+                   .with(scaleYAnim);
+        showAnimSet.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationStart(Animator animation) {
+                super.onAnimationStart(animation);
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                super.onAnimationStart(animation);
+            }
+        });
+        showAnimSet.setDuration(500);
+        showAnimSet.start();
+    }
+
+    private void hidePreview() {
+        ObjectAnimator alphaAnim = ObjectAnimator.ofFloat(mPreviewHolder, "alpha", 1f, 0f);
+        ObjectAnimator scaleXAnim = ObjectAnimator.ofFloat(mPreviewPic, "scaleX", 1, 0);
+        ObjectAnimator scaleYAnim = ObjectAnimator.ofFloat(mPreviewPic, "scaleY", 1, 0);
+        AnimatorSet hideAnimSet = new AnimatorSet();
+        hideAnimSet.play(alphaAnim)
+                   .with(scaleXAnim)
+                   .with(scaleYAnim);
+        hideAnimSet.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationStart(Animator animation) {
+                super.onAnimationStart(animation);
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                super.onAnimationStart(animation);
+                mPreviewHolder.setVisibility(View.GONE);
+            }
+        });
+        hideAnimSet.setDuration(500);
+        hideAnimSet.start();
     }
 }

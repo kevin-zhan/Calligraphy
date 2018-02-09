@@ -16,5 +16,7 @@ public class Constant {
     public final static long EFFECTIVE_TIME = 1000 * 5;
 
     public final static String[] PREFIXES = {"dbtb_", "jcglq_"};
-    public final static Integer[] IMAGE_NUMBER = {208, 145};
+    public final static Integer[] IMAGE_NUMBER = {208, 144};
+
+    public final static int INIT_RADIUS = 60;
 }
