@@ -47,8 +47,6 @@ public class DragSeekView extends View {
     @Override
     public void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        int viewWidth = getWidth();
-        int viewHeight = getHeight();
 
         if (mLeft < 0 || mRight < 0) {
             mLeft = getWidth() / 2 - Constant.INIT_RADIUS;

@@ -4,17 +4,17 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.BitmapFactory;
-import android.graphics.drawable.Drawable;
+import android.graphics.Point;
 import android.os.Bundle;
-import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
-import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -26,10 +26,13 @@ import butterknife.ButterKnife;
 import tech.zymx.calligraphy.CalligraphyUtils;
 import tech.zymx.calligraphy.Constant;
 import tech.zymx.calligraphy.R;
+import tech.zymx.calligraphy.view.TapStopHorizontalScrollView;
 import tech.zymx.calligraphy.view.TapStopScrollView;
 import tech.zymx.calligraphy.view.WordBoxView;
 
 public class CopybookSinglePageActivity extends AppCompatActivity {
+
+    private static final int EXPAND_SCREEN_SIZE = 200;
     private enum ViewSideEnum {
         LEFT,
         RIGHT,
@@ -47,6 +50,12 @@ public class CopybookSinglePageActivity extends AppCompatActivity {
     ImageView mGoPre;
     @BindView(R.id.practice_this)
     ImageView mPracticeThis;
+    @BindView(R.id.end_foot)
+    TextView mEndFootView;
+    @BindView(R.id.horizontal_scroll_view)
+    TapStopHorizontalScrollView mHorizontalScrollView;
+    @BindView(R.id.adjust_horizontal_position)
+    ImageView mAdjustHoriPosButton;
 
     private List<Integer> mPositionList = new ArrayList<>();
     private String mImageName = "";
@@ -69,6 +78,14 @@ public class CopybookSinglePageActivity extends AppCompatActivity {
         }
 
         initView();
+        WindowManager wm = (WindowManager) this.getSystemService(Context.WINDOW_SERVICE);
+        Point point = new Point();
+        if (wm != null) {
+            wm.getDefaultDisplay().getSize(point);
+        }
+        mContentPic.getLayoutParams().width = point.x;
+        mEndFootView.getLayoutParams().width = point.x + EXPAND_SCREEN_SIZE;
+        mHorizontalScrollView.setCanScroll(false);
 
         String integerListStr = getSharedPreferences().getString(imageName, "");
         mPositionList.clear();
@@ -76,31 +93,14 @@ public class CopybookSinglePageActivity extends AppCompatActivity {
     }
 
     private void initView() {
+
         mContentPic.setImageResource(CalligraphyUtils.getDrawableID(this, mImageName));
 
-        final RoundedBitmapDrawable roundedPracticeStartDrawable = RoundedBitmapDrawableFactory.create(getResources(), BitmapFactory.decodeResource(getResources(), R.drawable.practice_word));
-        roundedPracticeStartDrawable.setCornerRadius(50);
-        final RoundedBitmapDrawable roundedPracticeDoneDrawable = RoundedBitmapDrawableFactory.create(getResources(), BitmapFactory.decodeResource(getResources(), R.drawable.practice_done));
-        roundedPracticeDoneDrawable.setCornerRadius(50);
-
-        mPracticeThis.setImageDrawable(roundedPracticeStartDrawable);
+        mPracticeThis.setImageResource(R.drawable.practice_word);
         mPracticeThis.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mCoverView.setLocked(!mCoverView.isLocked());
-                mScrollView.setCanScroll(!mCoverView.isLocked());
-
-                recordScrollPosition(mCoverView.isLocked());
-
-                //动画逻辑
-                if (mCoverView.isLocked()) {
-                    hideOperationButtonWithAnimation();
-                    changeDrawableWithAnimation(mPracticeThis, roundedPracticeDoneDrawable);
-                } else {
-                    showOperationButtonWithAnimation();
-                    changeDrawableWithAnimation(mPracticeThis, roundedPracticeStartDrawable);
-                }
-                mCoverView.invalidate();
+                changePracticeStatus();
             }
         });
 
@@ -114,7 +114,7 @@ public class CopybookSinglePageActivity extends AppCompatActivity {
                         return;
                     }
                 }
-                Toast.makeText(CopybookSinglePageActivity.this, "此后暂无尔习过之字", Toast.LENGTH_SHORT).show();
+                Toast.makeText(CopybookSinglePageActivity.this, R.string.practice_end, Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -128,7 +128,14 @@ public class CopybookSinglePageActivity extends AppCompatActivity {
                         return;
                     }
                 }
-                Toast.makeText(CopybookSinglePageActivity.this, "此即该篇尔所习首字矣", Toast.LENGTH_SHORT).show();
+                Toast.makeText(CopybookSinglePageActivity.this, R.string.prictice_start, Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        mAdjustHoriPosButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mHorizontalScrollView.setCanScroll(!mHorizontalScrollView.isCanScroll());
             }
         });
     }
@@ -158,6 +165,25 @@ public class CopybookSinglePageActivity extends AppCompatActivity {
         Collections.sort(mPositionList);
     }
 
+    private void changePracticeStatus() {
+        mCoverView.setLocked(!mCoverView.isLocked());
+        mScrollView.setCanScroll(!mCoverView.isLocked());
+
+        recordScrollPosition(mCoverView.isLocked());
+
+        //动画逻辑
+        if (mCoverView.isLocked()) {
+            hideOperationButtonWithAnimation();
+            changeDrawableWithAnimation(mPracticeThis, R.drawable.practice_done);
+            mAdjustHoriPosButton.setVisibility(View.VISIBLE);
+        } else {
+            showOperationButtonWithAnimation();
+            changeDrawableWithAnimation(mPracticeThis, R.drawable.practice_word);
+            mAdjustHoriPosButton.setVisibility(View.GONE);
+            mHorizontalScrollView.scrollTo(EXPAND_SCREEN_SIZE / 2, mHorizontalScrollView.getScrollY());
+        }
+        mCoverView.invalidate();
+    }
 
     private void hideOperationButtonWithAnimation() {
         hideViewToCenterWithAnimation(mGoNext, ViewSideEnum.RIGHT);
@@ -207,7 +233,7 @@ public class CopybookSinglePageActivity extends AppCompatActivity {
         showAnimSet.start();
     }
 
-    private void changeDrawableWithAnimation(final ImageView view, final Drawable drawable) {
+    private void changeDrawableWithAnimation(final ImageView view, final int resId) {
         ObjectAnimator rotationAnim = ObjectAnimator.ofFloat(view, "rotationY", 0f, 180);
         ObjectAnimator alphaFadeOutAnim = ObjectAnimator.ofFloat(view, "alpha", 1f, 0f);
         ObjectAnimator alphaFadeInAnim = ObjectAnimator.ofFloat(view, "alpha", 0f, 1f);
@@ -215,7 +241,7 @@ public class CopybookSinglePageActivity extends AppCompatActivity {
             @Override
             public void onAnimationStart(Animator animation) {
                 view.setRotationY(0);
-                view.setImageDrawable(drawable);
+                view.setImageResource(resId);
             }
         });
         AnimatorSet animatorSet = new AnimatorSet();
@@ -250,10 +276,27 @@ public class CopybookSinglePageActivity extends AppCompatActivity {
         mPracticeThis.setClickable(true);
     }
 
+    @Override
     public void onPause() {
         super.onPause();
         String integerListStr = CalligraphyUtils.convertIntegerListToString(mPositionList);
         getSharedPreferences().edit().putString(mImageName, integerListStr).apply();
+    }
+
+    @Override
+    public void  onWindowFocusChanged(boolean focus) {
+        if (focus) {
+            mHorizontalScrollView.scrollTo(EXPAND_SCREEN_SIZE / 2, 0);
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (mCoverView.isLocked()) {
+            changePracticeStatus();
+            return;
+        }
+        super.onBackPressed();
     }
 
 }

@@ -13,11 +13,11 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import tech.zymx.calligraphy.CalligraphyUtils;
 import tech.zymx.calligraphy.Constant;
 import tech.zymx.calligraphy.GlideApp;
-import tech.zymx.calligraphy.activity.CopybookSinglePageActivity;
-import tech.zymx.calligraphy.CalligraphyUtils;
 import tech.zymx.calligraphy.R;
+import tech.zymx.calligraphy.activity.CopybookSinglePageActivity;
 
 /**
  * Created by kevinzhan on 2018/1/23.
@@ -43,7 +43,6 @@ public class CopybookContentAdapter extends RecyclerView.Adapter<CopybookContent
                 .load(CalligraphyUtils.getDrawableID(mContext,image_name))
                 .placeholder(R.drawable.loading_pic)
                 .into(vh.mImageView);
-//        vh.mImageView.setImageResource(CalligraphyUtils.getDrawableID(mContext, image_name));
         vh.mImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -68,7 +67,7 @@ public class CopybookContentAdapter extends RecyclerView.Adapter<CopybookContent
         @BindView(R.id.item_pic)
         ImageView mImageView;
 
-        public InnerViewHolder(View v) {
+        InnerViewHolder(View v) {
             super(v);
             ButterKnife.bind(this, v);
         }

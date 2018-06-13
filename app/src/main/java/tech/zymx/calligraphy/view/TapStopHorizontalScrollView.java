@@ -3,15 +3,14 @@ package tech.zymx.calligraphy.view;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
-import android.widget.ScrollView;
+import android.widget.HorizontalScrollView;
 
 /**
- * Created by kevinzhan on 2018/1/23.
+ * Created by kevinzhan@tencent.com on 2018/6/11
  */
-
-public class TapStopScrollView extends ScrollView {
+public class TapStopHorizontalScrollView extends HorizontalScrollView {
     private boolean canScroll = true;
-    public TapStopScrollView(Context context, AttributeSet attributeSet) {
+    public TapStopHorizontalScrollView(Context context, AttributeSet attributeSet) {
         super(context, attributeSet);
     }
 

@@ -3,4 +3,6 @@
     <string name="image_not_found">无处觅此图</string>
     <string name="the_end">终了</string>
     <string name="progress_text">%d/%d</string>
+    <string name="practice_end">此后暂无尔习过之字</string>
+    <string name="prictice_start">此即该篇尔所习首字矣</string>
 </resources>

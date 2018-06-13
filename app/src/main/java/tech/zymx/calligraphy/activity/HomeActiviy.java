@@ -1,4 +1,4 @@
-package tech.zymx.calligraphy;
+package tech.zymx.calligraphy.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -15,7 +15,7 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import tech.zymx.calligraphy.activity.CopybookActivity;
+import tech.zymx.calligraphy.R;
 
 /**
  * Created by kevinzhan on 2018/2/1.

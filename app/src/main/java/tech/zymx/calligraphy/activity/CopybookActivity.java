@@ -46,7 +46,27 @@ public class CopybookActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_copybook);
         ButterKnife.bind(this);
-        initRecyvleView();
+        initRecyclerView();
+        initListener();
+    }
+
+    private void initRecyclerView() {
+        String image_name;
+        int index = getIntent().getIntExtra("index", 0);
+        String prefix = Constant.PREFIXES[index];
+        int num = Constant.IMAGE_NUMBER[index];
+        List<String> pageNames = new ArrayList<>();
+        for (int i = 0; i < num; i++) {
+            image_name = prefix + String.valueOf(i + 1);
+            pageNames.add(image_name);
+        }
+        mAdapter = new CopybookContentAdapter(this, pageNames);
+        mRecyclerView.setAdapter(mAdapter);
+        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, true);
+        mRecyclerView.setLayoutManager(layoutManager);
+    }
+
+    private void initListener() {
         mDragSeekView.setOnDragListener(new DragSeekView.OnDragListener() {
             @Override
             public void onDragStart() {
@@ -82,23 +102,6 @@ public class CopybookActivity extends AppCompatActivity {
                 hidePreview();
             }
         });
-    }
-
-    private void initRecyvleView() {
-        String image_name;
-        int index = getIntent().getIntExtra("index", 0);
-        String prefix = Constant.PREFIXES[index];
-        int num = Constant.IMAGE_NUMBER[index];
-        List<String> pageNames = new ArrayList<>();
-        for (int i = 0; i < num; i++) {
-            image_name = prefix + String.valueOf(i + 1);
-            pageNames.add(image_name);
-        }
-        mAdapter = new CopybookContentAdapter(this, pageNames);
-        mRecyclerView.setAdapter(mAdapter);
-//        RecyclerView.LayoutManager layoutManager = new StaggeredGridLayoutManager(2,StaggeredGridLayoutManager.HORIZONTAL);
-        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, true);
-        mRecyclerView.setLayoutManager(layoutManager);
     }
 
     private int getDrawableAtPosition(int position) {

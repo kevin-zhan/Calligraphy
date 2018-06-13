@@ -48,8 +48,7 @@ public class CalligraphyUtils {
                 resultList.add(Integer.valueOf(str));
             }
         } catch (Exception e) {
-            //todo 可能由于版本原因出现解析失败，先try-catch一下，之后可以去除
-            return new ArrayList<>();
+            // do nothing
         }
         return resultList;
     }
