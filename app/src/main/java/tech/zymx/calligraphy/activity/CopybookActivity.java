@@ -19,7 +19,7 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import tech.zymx.calligraphy.CalligraphyUtils;
+import tech.zymx.calligraphy.utils.CalligraphyUtils;
 import tech.zymx.calligraphy.Constant;
 import tech.zymx.calligraphy.R;
 import tech.zymx.calligraphy.adapter.CopybookContentAdapter;

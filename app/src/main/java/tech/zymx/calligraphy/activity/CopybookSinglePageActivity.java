@@ -1,9 +1,5 @@
 package tech.zymx.calligraphy.activity;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
-import android.animation.AnimatorSet;
-import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -23,20 +19,23 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import tech.zymx.calligraphy.CalligraphyUtils;
 import tech.zymx.calligraphy.Constant;
 import tech.zymx.calligraphy.R;
+import tech.zymx.calligraphy.utils.AnimationUtils;
+import tech.zymx.calligraphy.utils.CalligraphyUtils;
 import tech.zymx.calligraphy.view.TapStopHorizontalScrollView;
 import tech.zymx.calligraphy.view.TapStopScrollView;
 import tech.zymx.calligraphy.view.WordBoxView;
 
 public class CopybookSinglePageActivity extends AppCompatActivity {
 
-    private static final int EXPAND_SCREEN_SIZE = 200;
-    private enum ViewSideEnum {
+    public enum ViewSideEnum {
         LEFT,
         RIGHT,
     }
+
+    private static final int EXPAND_SCREEN_SIZE = 200;
+
 
     @BindView(R.id.content_pic)
     ImageView mContentPic;
@@ -107,28 +106,18 @@ public class CopybookSinglePageActivity extends AppCompatActivity {
         mGoNext.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                int curPosition = mScrollView.getScrollY();
-                for (int i = 0; i < mPositionList.size(); i++) {
-                    if (mPositionList.get(i) > curPosition) {
-                        mScrollView.smoothScrollTo(0, mPositionList.get(i));
-                        return;
-                    }
+                if (!smoothScrollToNextWord()) {
+                    Toast.makeText(CopybookSinglePageActivity.this, R.string.practice_end, Toast.LENGTH_SHORT).show();
                 }
-                Toast.makeText(CopybookSinglePageActivity.this, R.string.practice_end, Toast.LENGTH_SHORT).show();
             }
         });
 
         mGoPre.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                int curPosition = mScrollView.getScrollY();
-                for (int i = mPositionList.size() - 1; i > -1; i--) {
-                    if (mPositionList.get(i) < curPosition) {
-                        mScrollView.smoothScrollTo(0, mPositionList.get(i));
-                        return;
-                    }
+                if (!smoothScrollToPreWord()) {
+                    Toast.makeText(CopybookSinglePageActivity.this, R.string.prictice_start, Toast.LENGTH_SHORT).show();
                 }
-                Toast.makeText(CopybookSinglePageActivity.this, R.string.prictice_start, Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -138,6 +127,28 @@ public class CopybookSinglePageActivity extends AppCompatActivity {
                 mHorizontalScrollView.setCanScroll(!mHorizontalScrollView.isCanScroll());
             }
         });
+    }
+
+    private boolean smoothScrollToNextWord() {
+        int curPosition = mScrollView.getScrollY();
+        for (int i = 0; i < mPositionList.size(); i++) {
+            if (mPositionList.get(i) > curPosition) {
+                mScrollView.smoothScrollTo(0, mPositionList.get(i));
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean smoothScrollToPreWord() {
+        int curPosition = mScrollView.getScrollY();
+        for (int i = mPositionList.size() - 1; i > -1; i--) {
+            if (mPositionList.get(i) < curPosition) {
+                mScrollView.smoothScrollTo(0, mPositionList.get(i));
+                return true;
+            }
+        }
+        return false;
     }
 
     private void recordScrollPosition(boolean isLocked) {
@@ -174,11 +185,11 @@ public class CopybookSinglePageActivity extends AppCompatActivity {
         //动画逻辑
         if (mCoverView.isLocked()) {
             hideOperationButtonWithAnimation();
-            changeDrawableWithAnimation(mPracticeThis, R.drawable.practice_done);
+            AnimationUtils.changeDrawableWithAnimation(mPracticeThis, R.drawable.practice_done);
             mAdjustHoriPosButton.setVisibility(View.VISIBLE);
         } else {
             showOperationButtonWithAnimation();
-            changeDrawableWithAnimation(mPracticeThis, R.drawable.practice_word);
+            AnimationUtils.changeDrawableWithAnimation(mPracticeThis, R.drawable.practice_word);
             mAdjustHoriPosButton.setVisibility(View.GONE);
             mHorizontalScrollView.scrollTo(EXPAND_SCREEN_SIZE / 2, mHorizontalScrollView.getScrollY());
         }
@@ -186,99 +197,33 @@ public class CopybookSinglePageActivity extends AppCompatActivity {
     }
 
     private void hideOperationButtonWithAnimation() {
-        hideViewToCenterWithAnimation(mGoNext, ViewSideEnum.RIGHT);
-        hideViewToCenterWithAnimation(mGoPre, ViewSideEnum.LEFT);
+        AnimationUtils.hideViewToCenterWithAnimation(mGoNext, ViewSideEnum.RIGHT);
+        AnimationUtils.hideViewToCenterWithAnimation(mGoPre, ViewSideEnum.LEFT);
     }
 
     private void showOperationButtonWithAnimation() {
-        showViewToSideWithAnimation(mGoNext, ViewSideEnum.RIGHT);
-        showViewToSideWithAnimation(mGoPre, ViewSideEnum.LEFT);
+        AnimationUtils.showViewToSideWithAnimation(mGoNext, ViewSideEnum.RIGHT);
+        AnimationUtils.showViewToSideWithAnimation(mGoPre, ViewSideEnum.LEFT);
     }
 
-    private void hideViewToCenterWithAnimation(final View view, ViewSideEnum viewPlace) {
-        ObjectAnimator alphaAnim = ObjectAnimator.ofFloat(view, "alpha", 1f, 0f);
-        ObjectAnimator rotationAnim = ObjectAnimator.ofFloat(view, "rotation", 0f, viewPlace == ViewSideEnum.LEFT ? 180f : -180f);
-        ObjectAnimator transAnim = ObjectAnimator.ofFloat(view, "translationX", view.getTranslationX(), viewPlace == ViewSideEnum.LEFT ? 150f : -150f);
-        AnimatorSet hideAnimSet = new AnimatorSet();
-        hideAnimSet.play(alphaAnim)
-                   .with(rotationAnim)
-                   .with(transAnim);
-        hideAnimSet.setDuration(600);
-        hideAnimSet.addListener(new AnimatorListenerAdapter() {
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                super.onAnimationEnd(animation);
-                view.setVisibility(View.GONE);
-            }
-        });
-        hideAnimSet.start();
-    }
 
-    private void showViewToSideWithAnimation(final View view, ViewSideEnum viewPlace) {
-        ObjectAnimator alphaAnim = ObjectAnimator.ofFloat(view, "alpha", 0f, 1f);
-        ObjectAnimator rotationAnim = ObjectAnimator.ofFloat(view, "rotation", viewPlace == ViewSideEnum.LEFT ? 180f : -180f, 0);
-        ObjectAnimator transAnim = ObjectAnimator.ofFloat(view, "translationX", view.getTranslationX(), 0);
-        AnimatorSet showAnimSet = new AnimatorSet();
-        showAnimSet.play(alphaAnim)
-                   .with(rotationAnim)
-                   .with(transAnim);
-        showAnimSet.addListener(new AnimatorListenerAdapter() {
-            @Override
-            public void onAnimationStart(Animator animation) {
-                super.onAnimationStart(animation);
-                view.setVisibility(View.VISIBLE);
-            }
-        });
-        showAnimSet.setDuration(500);
-        showAnimSet.start();
-    }
 
-    private void changeDrawableWithAnimation(final ImageView view, final int resId) {
-        ObjectAnimator rotationAnim = ObjectAnimator.ofFloat(view, "rotationY", 0f, 180);
-        ObjectAnimator alphaFadeOutAnim = ObjectAnimator.ofFloat(view, "alpha", 1f, 0f);
-        ObjectAnimator alphaFadeInAnim = ObjectAnimator.ofFloat(view, "alpha", 0f, 1f);
-        alphaFadeInAnim.addListener(new AnimatorListenerAdapter() {
-            @Override
-            public void onAnimationStart(Animator animation) {
-                view.setRotationY(0);
-                view.setImageResource(resId);
-            }
-        });
-        AnimatorSet animatorSet = new AnimatorSet();
-        animatorSet.play(rotationAnim)
-                   .with(alphaFadeOutAnim)
-                   .before(alphaFadeInAnim);
-        animatorSet.setDuration(600);
-        animatorSet.addListener(new AnimatorListenerAdapter() {
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                super.onAnimationEnd(animation);
-                unblockTouchEvent();
-            }
-        });
-        animatorSet.start();
-        blockTouchEvent();
-    }
+
 
     private SharedPreferences getSharedPreferences() {
         return getSharedPreferences("scroll_offset", MODE_PRIVATE);
     }
 
-    private void blockTouchEvent() {
-        mGoPre.setClickable(false);
-        mGoNext.setClickable(false);
-        mPracticeThis.setClickable(false);
-    }
-
-    private void unblockTouchEvent() {
-        mGoPre.setClickable(true);
-        mGoNext.setClickable(true);
-        mPracticeThis.setClickable(true);
+    @Override
+    public void onResume() {
+        super.onResume();
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     }
 
     @Override
     public void onPause() {
         super.onPause();
+        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         String integerListStr = CalligraphyUtils.convertIntegerListToString(mPositionList);
         getSharedPreferences().edit().putString(mImageName, integerListStr).apply();
     }
@@ -287,6 +232,7 @@ public class CopybookSinglePageActivity extends AppCompatActivity {
     public void  onWindowFocusChanged(boolean focus) {
         if (focus) {
             mHorizontalScrollView.scrollTo(EXPAND_SCREEN_SIZE / 2, 0);
+            smoothScrollToNextWord();
         }
     }
 

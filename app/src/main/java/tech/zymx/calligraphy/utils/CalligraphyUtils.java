@@ -1,4 +1,4 @@
-package tech.zymx.calligraphy;
+package tech.zymx.calligraphy.utils;
 
 import android.content.Context;
 import android.content.res.Resources;
@@ -8,6 +8,8 @@ import android.text.TextUtils;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
+import tech.zymx.calligraphy.Constant;
 
 /**
  * Created by kevinzhan on 2018/1/23.
