@@ -57,7 +57,7 @@ public class CopybookSinglePageActivity extends AppCompatActivity {
     ImageView mAdjustHoriPosButton;
 
     private List<Integer> mPositionList = new ArrayList<>();
-    private String mImageName = "";
+    private String mImageUrl = "";
     private long mLastLockTime;
     private boolean mIsInAnim = false;
 
@@ -68,9 +68,9 @@ public class CopybookSinglePageActivity extends AppCompatActivity {
         ButterKnife.bind(this);
 
         Intent intent = getIntent();
-        String imageName = intent.getStringExtra(Constant.IMAGE_NAME_SIGN);
-        if (!TextUtils.isEmpty(imageName)) {
-            mImageName = imageName;
+        String imageUrl = intent.getStringExtra(Constant.IMAGE_URL);
+        if (!TextUtils.isEmpty(imageUrl)) {
+            mImageUrl = imageUrl;
         } else {
             Toast.makeText(this, R.string.image_not_found, Toast.LENGTH_SHORT).show();
             return;
@@ -86,14 +86,14 @@ public class CopybookSinglePageActivity extends AppCompatActivity {
         mEndFootView.getLayoutParams().width = point.x + EXPAND_SCREEN_SIZE;
         mHorizontalScrollView.setCanScroll(false);
 
-        String integerListStr = getSharedPreferences().getString(imageName, "");
+        String integerListStr = getSharedPreferences().getString(mImageUrl, "");
         mPositionList.clear();
         mPositionList.addAll(CalligraphyUtils.parseStringToIntegerList(integerListStr));
     }
 
     private void initView() {
 
-        mContentPic.setImageResource(CalligraphyUtils.getDrawableID(this, mImageName));
+        CalligraphyUtils.setImageUrl(mContentPic, mImageUrl, this);
 
         mPracticeThis.setImageResource(R.drawable.practice_word);
         mPracticeThis.setOnClickListener(new View.OnClickListener() {
@@ -225,7 +225,7 @@ public class CopybookSinglePageActivity extends AppCompatActivity {
         super.onPause();
         getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         String integerListStr = CalligraphyUtils.convertIntegerListToString(mPositionList);
-        getSharedPreferences().edit().putString(mImageName, integerListStr).apply();
+        getSharedPreferences().edit().putString(mImageUrl, integerListStr).apply();
     }
 
     @Override

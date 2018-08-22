@@ -14,13 +14,10 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import tech.zymx.calligraphy.utils.CalligraphyUtils;
 import tech.zymx.calligraphy.Constant;
+import tech.zymx.calligraphy.GlideApp;
 import tech.zymx.calligraphy.R;
 import tech.zymx.calligraphy.adapter.CopybookContentAdapter;
 import tech.zymx.calligraphy.view.DragSeekView;
@@ -51,16 +48,9 @@ public class CopybookActivity extends AppCompatActivity {
     }
 
     private void initRecyclerView() {
-        String image_name;
         int index = getIntent().getIntExtra("index", 0);
-        String prefix = Constant.PREFIXES[index];
-        int num = Constant.IMAGE_NUMBER[index];
-        List<String> pageNames = new ArrayList<>();
-        for (int i = 0; i < num; i++) {
-            image_name = prefix + String.valueOf(i + 1);
-            pageNames.add(image_name);
-        }
-        mAdapter = new CopybookContentAdapter(this, pageNames);
+
+        mAdapter = new CopybookContentAdapter(this, Constant.URL_PROVIDERS[index]);
         mRecyclerView.setAdapter(mAdapter);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, true);
         mRecyclerView.setLayoutManager(layoutManager);
@@ -72,7 +62,7 @@ public class CopybookActivity extends AppCompatActivity {
             public void onDragStart() {
                 mPreviewHolder.setVisibility(View.VISIBLE);
                 mJumpPosition = getCurrentPosition() + 2;
-                mPreviewPic.setImageResource(getDrawableAtPosition(mJumpPosition));
+                configPreviewPicWithIndex(mJumpPosition);
                 mProgressText.setText(getResources().getString(R.string.progress_text, mJumpPosition + 1, mRecyclerView.getAdapter().getItemCount()));
                 showPreview();
             }
@@ -83,11 +73,11 @@ public class CopybookActivity extends AppCompatActivity {
                 int jumpLength = (int) (mRecyclerView.getAdapter().getItemCount() * Math.abs(percent));
                 if (percent > 0) {
                     targetPosition = getCurrentPosition() - jumpLength > -1 ? getCurrentPosition() - jumpLength : 0;
-                    mPreviewPic.setImageResource(getDrawableAtPosition(targetPosition + 2 < mRecyclerView.getAdapter().getItemCount() ? targetPosition + 2 : targetPosition));
+                    configPreviewPicWithIndex(targetPosition + 2 < mRecyclerView.getAdapter().getItemCount() ? targetPosition + 2 : targetPosition);
                 } else {
                     targetPosition = getCurrentPosition() + jumpLength > mRecyclerView.getAdapter().getItemCount() - 1 ? mRecyclerView.getAdapter().getItemCount() - 1 : getCurrentPosition() +
                             jumpLength;
-                    mPreviewPic.setImageResource(getDrawableAtPosition(targetPosition - 2 < 0 ? 0 : targetPosition - 2));
+                    configPreviewPicWithIndex(targetPosition - 2 < 0 ? 0 : targetPosition - 2);
                 }
 
                 mJumpPosition = targetPosition;
@@ -104,9 +94,11 @@ public class CopybookActivity extends AppCompatActivity {
         });
     }
 
-    private int getDrawableAtPosition(int position) {
-        String imageName = mAdapter.getPageNames().get(position);
-        return CalligraphyUtils.getDrawableID(this, imageName);
+    private void configPreviewPicWithIndex(int index) {
+        GlideApp.with(CopybookActivity.this)
+                .load(mAdapter.getImageUrlProvider().getImageUrl(index))
+                .placeholder(R.drawable.loading_pic)
+                .into(mPreviewPic);
     }
 
     private int getCurrentPosition() {

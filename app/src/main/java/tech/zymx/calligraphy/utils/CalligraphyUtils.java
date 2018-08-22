@@ -2,14 +2,23 @@ package tech.zymx.calligraphy.utils;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
+import android.widget.ImageView;
+
+import com.bumptech.glide.request.target.SimpleTarget;
+import com.bumptech.glide.request.transition.Transition;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 import tech.zymx.calligraphy.Constant;
+import tech.zymx.calligraphy.GlideApp;
+import tech.zymx.calligraphy.R;
 
 /**
  * Created by kevinzhan on 2018/1/23.
@@ -66,6 +75,25 @@ public class CalligraphyUtils {
     public static long getTimeStamp() {
         Date date = new Date();
         return date.getTime();
+    }
+
+    public static void setImageUrl(final ImageView imageView, String url, Context context) {
+        GlideApp.with(context)
+                .asBitmap()
+                .load(url)
+                .placeholder(R.drawable.loading_pic)
+                .centerCrop()
+                .into(new SimpleTarget<Bitmap>() {
+                    @Override
+                    public void onLoadStarted(Drawable placeholder) {
+                        imageView.setImageDrawable(placeholder);
+                    }
+
+                    @Override
+                    public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
+                        imageView.setImageBitmap(resource);
+                    }
+                });
     }
 
 }

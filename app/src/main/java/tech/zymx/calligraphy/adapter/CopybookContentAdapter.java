@@ -8,16 +8,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import tech.zymx.calligraphy.utils.CalligraphyUtils;
 import tech.zymx.calligraphy.Constant;
-import tech.zymx.calligraphy.GlideApp;
 import tech.zymx.calligraphy.R;
 import tech.zymx.calligraphy.activity.CopybookSinglePageActivity;
+import tech.zymx.calligraphy.model.ImageUrlProvider;
+import tech.zymx.calligraphy.utils.CalligraphyUtils;
 
 /**
  * Created by kevinzhan on 2018/1/23.
@@ -26,28 +23,24 @@ import tech.zymx.calligraphy.activity.CopybookSinglePageActivity;
 public class CopybookContentAdapter extends RecyclerView.Adapter<CopybookContentAdapter.InnerViewHolder> {
     private final Context mContext;
     private final LayoutInflater mLayoutInflater;
-    private List<String> mPageNames = new ArrayList<>();
+    private ImageUrlProvider mImageUrlProvider;
 
 
-    public CopybookContentAdapter(Context context, List<String> pageNames) {
+    public CopybookContentAdapter(Context context, ImageUrlProvider provider) {
         super();
         mContext = context;
         mLayoutInflater = LayoutInflater.from(context);
-        mPageNames = pageNames;
+        mImageUrlProvider = provider;
     }
 
     @Override
     public void onBindViewHolder(InnerViewHolder vh, final int index) {
-        final String image_name = mPageNames.get(index);
-        GlideApp.with(mContext)
-                .load(CalligraphyUtils.getDrawableID(mContext,image_name))
-                .placeholder(R.drawable.loading_pic)
-                .into(vh.mImageView);
+        CalligraphyUtils.setImageUrl(vh.mImageView, mImageUrlProvider.getImageUrl(index), mContext);
         vh.mImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(mContext, CopybookSinglePageActivity.class);
-                intent.putExtra(Constant.IMAGE_NAME_SIGN, image_name);
+                intent.putExtra(Constant.IMAGE_URL, mImageUrlProvider.getImageUrl(index));
                 mContext.startActivity(intent);
             }
         });
@@ -55,7 +48,7 @@ public class CopybookContentAdapter extends RecyclerView.Adapter<CopybookContent
 
     @Override
     public int getItemCount() {
-        return mPageNames.size();
+        return mImageUrlProvider.getImageCount();
     }
 
     @Override
@@ -73,14 +66,9 @@ public class CopybookContentAdapter extends RecyclerView.Adapter<CopybookContent
         }
     }
 
-    public List<String> getPageNames() {
-        return mPageNames;
+    public ImageUrlProvider getImageUrlProvider() {
+        return mImageUrlProvider;
     }
-
-    public void setPageNames(List<String> pageNames) {
-        mPageNames = pageNames;
-    }
-
 }
 
 
